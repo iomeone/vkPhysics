@@ -48,66 +48,6 @@ struct client_chunk_packet_t {
     uint32_t size;
 };
 
-#define MAX_PREDICTED_PROJECTILE_HITS 15
-
-struct client_t {
-    union {
-        struct {
-            uint32_t initialised: 1;
-            uint32_t waiting_on_correction: 1;
-            uint32_t received_first_commands_packet: 1;
-            uint32_t chunks_to_wait_for: 15;
-            // The `tick` variable should just be set after a game state snapshot dispatching happened
-            // Because server only checks for prediction errors at game state dispatching
-            // When an error occurs, server needs to be sure that `tick` is the last moment
-            // Where client didn't make any errors
-            uint32_t should_set_tick: 1;
-            uint32_t did_terrain_mod_previous_tick: 1;
-            uint32_t send_corrected_predicted_voxels: 1;
-
-            // For the server: if the server receives the ping response: flip this bit
-            uint32_t received_ping;
-            // Will use other bits in future
-        };
-
-        uint32_t flags = 0;
-    };
-
-    const char *name;
-    uint16_t client_id;
-    network_address_t address;
-
-    vector3_t ws_predicted_position;
-    vector3_t ws_predicted_view_direction;
-    vector3_t ws_predicted_up_vector;
-
-    vector3_t ws_predicted_velocity;
-
-    player_flags_t predicted_player_flags;
-    uint32_t predicted_player_health;
-
-    uint32_t predicted_proj_hit_count;
-    predicted_projectile_hit_t predicted_proj_hits[MAX_PREDICTED_PROJECTILE_HITS];
-
-    // Previous locations
-    circular_buffer_array_t<player_position_snapshot_t, 40> previous_locations;
-
-    // Predicted chunk modifications
-    uint32_t predicted_chunk_mod_count;
-    chunk_modifications_t *predicted_modifications;
-
-    uint64_t tick;
-    uint64_t tick_at_which_client_terraformed;
-
-    uint32_t chunk_packet_count;
-    uint32_t current_chunk_sending;
-    client_chunk_packet_t chunk_packets[20];
-
-    // The amount of time it takes for the client to receive a message from the server (vice versa)
-    float ping;
-    float ping_in_progress;
-    float time_since_ping;
-};
 
 struct accumulated_predicted_modification_t {
     // Tick at which client sent these to the server

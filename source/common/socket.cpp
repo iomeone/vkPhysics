@@ -709,4 +709,3 @@ void destroy_socket(
     socket_t s) {
     s_destroy_socket(s);
 }
-
